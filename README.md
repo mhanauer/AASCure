@@ -47,4 +47,103 @@ data=bmt,model="aft",nboot=200)
 bmtfit
 
 ```
+Run mulitple power analyses for n
+```{r}
+
+n = seq(from =  200, to= 500, by = 20)
+
+n_results_n = list()
+odds_ratio_cure  = function(x,y){
+  (x/(1-x))/(y/(1-y))
+}
+odds_ratio_cure(.9,.8)
+
+for(i in 1:length(n)){
+  n_results_n[[i]] = NPHMC(n = n[[i]], alpha = .05, accrualtime = 1, followuptime = 3, p = .5, accrualdist = "uniform", hazardratio = 2/2.5, oddsratio = odds_ratio_cure(.9,.75), pi0 = .9, survdist = "exp", lambda0 = .5)
+  n_results_n
+}
+
+n_results_n= unlist(n_results_n)
+n_results_n = matrix(n_results_n, ncol = 2, byrow = TRUE)
+colnames(n_results_n) = c("cure", "standard")
+n_results_n = data.frame(n_results_n)
+n_results_n$n = n
+library(reshape2)
+n_results_n = melt(n_results_n, measure.vars = c("cure", "standard"))
+colnames(n_results_n) = c("n", "model", "power") 
+n_results_n
+```
+Now plot the graphs
+```{r}
+library(ggplot2)
+ggplot(n_results_n, aes(x = n, y = power, colour = model))+
+  geom_line()+
+  labs(title = "Power: Cure vs.Standard: n = 200 to 500", subtitle = "Assumptions: 15% less deaths and 20% decrease in risk of dying")+
+  geom_hline(yintercept = .8)
+
+```
+Now run sequence for hazard ratio
+```{r}
+hazard_ratio = seq(from =  .6, to= .9, by = .01)
+n_results_hr = list()
+odds_ratio_cure  = function(x,y){
+  (x/(1-x))/(y/(1-y))
+}
+
+for(i in 1:length(hazard_ratio)){
+  n_results_hr[[i]] = NPHMC(n = 200, alpha = .05, accrualtime = 1, followuptime = 3, p = .5, accrualdist = "uniform", hazardratio = hazard_ratio[[i]], oddsratio = odds_ratio_cure(.4,.2), pi0 = .9, survdist = "exp", lambda0 = .5)
+  n_results_hr
+}
+
+n_results_hr= unlist(n_results_hr)
+n_results_hr = matrix(n_results_hr, ncol = 2, byrow = TRUE)
+colnames(n_results_hr) = c("cure", "standard")
+n_results_hr = data.frame(n_results_hr)
+n_results_hr$hazard_ratio = hazard_ratio
+n_results_hr
+library(reshape2)
+n_results_hr = melt(n_results_hr, measure.vars = c("cure", "standard"))
+colnames(n_results_hr) = c("hazard_ratio", "model", "power") 
+n_results_hr
+
+
+```
+Now plot the graphs for hazard
+Risk of dying goes down
+```{r}
+library(ggplot2)
+ggplot(n_results_hr, aes(x = hazard_ratio, y = power, colour = model))+
+  geom_line()+
+  labs(title = "Power Cure vs.Standard: 40% to 10% decrease in risk of dying", subtitle = "Assumptions: n = 200; 15% less deaths", x = "hazard ratio")+
+  geom_hline(yintercept = .8)
+
+
+```
+Now run sequence for odds ratio
+```{r}
+odds_ratio_cure(.9,.8)
+odds_ratio = seq(from =  2.25, to= 3, by = .05)
+n_results_or = list()
+
+odds_ratio_cure  = function(x,y){
+  (x/(1-x))/(y/(1-y))
+}
+
+for(i in 1:length(hazard_ratio)){
+  n_results_or[[i]] = NPHMC(n = 200, alpha = .05, accrualtime = 1, followuptime = 3, p = .5, accrualdist = "uniform", hazardratio = 2/2.5, oddsratio = odds_ratio[[i]], pi0 = .9, survdist = "exp", lambda0 = .5)
+  n_results_or
+}
+
+n_results_or= unlist(n_results_or)
+n_results_or = matrix(n_results_or, ncol = 2, byrow = TRUE)
+colnames(n_results_or) = c("cure", "standard")
+n_results_or = data.frame(n_results_or)
+n_results_or$hazard_ratio = hazard_ratio
+n_results_or
+library(reshape2)
+n_results_or = melt(n_results_or, measure.vars = c("cure", "standard"))
+colnames(n_results_or) = c("hazard_ratio", "model", "power") 
+n_results_or
+```
+
 
