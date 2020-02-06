@@ -90,7 +90,7 @@ odds_ratio_cure  = function(x,y){
 }
 
 for(i in 1:length(hazard_ratio)){
-  n_results_hr[[i]] = NPHMC(n = 200, alpha = .05, accrualtime = 1, followuptime = 3, p = .5, accrualdist = "uniform", hazardratio = hazard_ratio[[i]], oddsratio = odds_ratio_cure(.4,.2), pi0 = .9, survdist = "exp", lambda0 = .5)
+  n_results_hr[[i]] = NPHMC(n = 200, alpha = .05, accrualtime = 1, followuptime = 3, p = .5, accrualdist = "uniform", hazardratio = hazard_ratio[[i]], oddsratio = odds_ratio_cure(.9,.8), pi0 = .9, survdist = "exp", lambda0 = .5)
   n_results_hr
 }
 
