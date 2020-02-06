@@ -22,13 +22,12 @@ Hazard ratio cure: The difference in mean survival times for those uncured (i.e.
 
 ```{r}
 library(NPHMC)
-data(e1684szdata)
 
 odds_ratio_cure  = function(x,y){
   (x/(1-x))/(y/(1-y))
 }
 odds_ratio_cure(.9,.8)
-test_power = NPHMC(power = .8, alpha = .05, accrualtime = 1, followuptime = 3, p = .5, accrualdist = "uniform", hazardratio = 2/2.5, oddsratio = odds_ratio_cure(.4,.2), pi0 = .9, survdist = "exp", lambda0 = .5)
+test_power = NPHMC(power = .8, alpha = .05, accrualtime = 1, followuptime = 3, p = .5, accrualdist = "uniform", hazardratio = 2/2.5, oddsratio = 4, pi0 = .9, survdist = "exp", lambda0 = .5)
 test_power
 ```
 Try example from smcure
@@ -121,16 +120,14 @@ ggplot(n_results_hr, aes(x = hazard_ratio, y = power, colour = model))+
 ```
 Now run sequence for odds ratio
 ```{r}
-odds_ratio_cure(.9,.8)
+
 odds_ratio = seq(from =  2.25, to= 3, by = .05)
 n_results_or = list()
 
-odds_ratio_cure  = function(x,y){
-  (x/(1-x))/(y/(1-y))
-}
+#odds_ratio_cure  = function(x,y){(x/(1-x))/(y/(1-y))}
 
-for(i in 1:length(hazard_ratio)){
-  n_results_or[[i]] = NPHMC(n = 200, alpha = .05, accrualtime = 1, followuptime = 3, p = .5, accrualdist = "uniform", hazardratio = 2/2.5, oddsratio = odds_ratio[[i]], pi0 = .9, survdist = "exp", lambda0 = .5)
+for(i in 1:length(odds_ratio)){
+  n_results_or[[i]] = NPHMC(n = 300, alpha = .05, accrualtime = 1, followuptime = 3, p = .5, accrualdist = "uniform", hazardratio = 2/2.5, oddsratio = odds_ratio[[i]], pi0 = .9, survdist = "exp", lambda0 = .5)
   n_results_or
 }
 
@@ -138,12 +135,22 @@ n_results_or= unlist(n_results_or)
 n_results_or = matrix(n_results_or, ncol = 2, byrow = TRUE)
 colnames(n_results_or) = c("cure", "standard")
 n_results_or = data.frame(n_results_or)
-n_results_or$hazard_ratio = hazard_ratio
+n_results_or$odds_ratio = odds_ratio
 n_results_or
 library(reshape2)
 n_results_or = melt(n_results_or, measure.vars = c("cure", "standard"))
-colnames(n_results_or) = c("hazard_ratio", "model", "power") 
+colnames(n_results_or) = c("odds_ratio", "model", "power") 
 n_results_or
 ```
+Now plot the graphs for hazard
+Risk of dying goes down
+As the difference between those who are dying (i.e. cured) between treatment and control we get more power from the cure model.
+```{r}
+library(ggplot2)
+ggplot(n_results_or, aes(x = odds_ratio, y = power, colour = model))+
+  geom_line()+
+  labs(title = "Power Cure vs.Standard: Changes in odds of dying", subtitle = "Assumptions: n = 300; 10% decrease in risk of dying", x = "odds ratio")+
+  geom_hline(yintercept = .8)
 
+```
 
