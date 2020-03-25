@@ -41,9 +41,18 @@ Hazard ratios: Rate of change (p-change)
 library(smcure)
 data(e1684)
 data(bmt)
+
 bmtfit <- smcure(Surv(Time,Status)~TRT,cureform=~TRT,
 data=bmt,model="aft",nboot=200)
 bmtfit
+predbmt=predictsmcure(bmtfit,newX=c(0,1),newZ=c(0,1),model='aft')
+plotpredictsmcure(predbmt,model='aft', xlab = "Days")
+
+surv_path = Surv(bmt$Time,bmt$Status)
+fit_surv = fit_surv = survfit(surv_path ~ TRT, data = bmt)
+fit_surv
+ggsurvplot(fit_surv, data = bmt, surv.scale = "percent", title = "Generic Survival Analysis", xlab = "Days")
+
 
 ```
 Run mulitple power analyses for n
@@ -77,7 +86,7 @@ Now plot the graphs
 library(ggplot2)
 ggplot(n_results_n, aes(x = n, y = power, colour = model))+
   geom_line()+
-  labs(title = "Power: Cure vs.Standard: n = 200 to 500", subtitle = "Assumptions: 15% less deaths and 20% decrease in risk of dying")+
+  labs(title = "Figure 1: Power: Cure vs.Standard: n = 200 to 500", subtitle = "Assumptions: 15% less deaths and 20% decrease in risk of dying")+
   geom_hline(yintercept = .8)
 
 ```
@@ -113,7 +122,7 @@ Risk of dying goes down
 library(ggplot2)
 ggplot(n_results_hr, aes(x = hazard_ratio, y = power, colour = model))+
   geom_line()+
-  labs(title = "Power Cure vs.Standard: 40% to 10% decrease in risk of dying", subtitle = "Assumptions: n = 200; 15% less deaths", x = "hazard ratio")+
+  labs(title = "Figure 2: Power Cure vs.Standard: 40% to 10% decrease in risk of dying", subtitle = "Assumptions: n = 200; 15% less deaths", x = "hazard ratio")+
   geom_hline(yintercept = .8)
 
 
@@ -149,7 +158,7 @@ As the difference between those who are dying (i.e. cured) between treatment and
 library(ggplot2)
 ggplot(n_results_or, aes(x = odds_ratio, y = power, colour = model))+
   geom_line()+
-  labs(title = "Power Cure vs.Standard: Changes in odds of dying", subtitle = "Assumptions: n = 300; 10% decrease in risk of dying", x = "odds ratio")+
+  labs(title = "Figure 3: Power Cure vs.Standard: Changes in odds of dying", subtitle = "Assumptions: n = 300; 10% decrease in risk of dying", x = "odds ratio")+
   geom_hline(yintercept = .8)
 
 ```
