@@ -11,8 +11,8 @@ Try the smcure model.  Including the probabiltiy of not dying, which is relative
 
 25% for lost to follow-up and 50% because we are going to have an extra group and alpha /3, because you are running three non-independent tests
 
-Accrualtime: The time you spend recruiting participants
-Followuptime: The time you spend following up after the study has enrolled their last participant
+Accrualtime: The time you spend recruiting participants usually in years
+Followuptime: The time you spend following up after the study has enrolled their last participant usually in years
 
 .4 is rate of cure for treatment .2 is rate of cure for control
 Cure rate = (.4/(1-.4))/(.2/(1-.2))
@@ -34,12 +34,13 @@ Try example from smcure
 https://stats.idre.ucla.edu/stata/seminars/stata-survival/
 Hazzard rate: Unobserved rate at time t at which events will occur for those who the event has not already occured.  Measured in the units of time that you have in the data.  For example a hazzard rate of 1.5 when the unit of time measurement is weeks is 1.5 event within one week.   
 Relative risk: percentage change in the risk of death (deaths / people at risk)
-Odds ratio: percentage change in percentage of peoeple dying versus not dying (deaths / not deaths)
+Odds ratio: percentage change in odds of peoeple dying versus not dying (deaths / not deaths)
 Hazard ratios: Rate of change (p-change)
 
 ```{r}
 library(smcure)
 data(e1684)
+library(survminer)
 data(bmt)
 
 bmtfit <- smcure(Surv(Time,Status)~TRT,cureform=~TRT,
@@ -48,6 +49,7 @@ bmtfit
 predbmt=predictsmcure(bmtfit,newX=c(0,1),newZ=c(0,1),model='aft')
 plotpredictsmcure(predbmt,model='aft', xlab = "Days")
 
+compmeans(bmt$Time, bmt$TRT)
 surv_path = Surv(bmt$Time,bmt$Status)
 fit_surv = fit_surv = survfit(surv_path ~ TRT, data = bmt)
 fit_surv
